@@ -1,4 +1,3 @@
 #!/usr/bin/env ash
 
-acfpasswd -s root
 exec /usr/sbin/mini_httpd -D -C /etc/mini_httpd/mini_httpd.conf

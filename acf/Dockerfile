@@ -1,8 +1,5 @@
 FROM alpine:3.8
 
-# root passwd
-# RUN echo "root:$(mkpasswd -m sha512 alpine)" | chpasswd --crypt-method sha512
-
 # install acf + deps
 RUN apk update \
     && apk upgrade \
@@ -13,8 +10,8 @@ RUN setup-acf
 RUN poweroff
 RUN rc-update del mini_httpd default
 
-# update root passwd
-# RUN acfpasswd -s root
+# set initial acf passwd
+# root:alpine
 RUN echo "root:$(mkpasswd -m sha256 alpine):Admin account:ADMIN" > /etc/acf/passwd
 
 # setup s6
@@ -25,6 +22,7 @@ RUN tar xzf /tmp/s6-overlay-amd64.tar.gz -C /
 RUN mkdir -p /etc/services.d/mini_httpd
 ADD run /etc/services.d/mini_httpd/
 
+# exports
 VOLUME /etc/ssl/
 EXPOSE 443
 ENTRYPOINT ["/init"]

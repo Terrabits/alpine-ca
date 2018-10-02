@@ -1,0 +1,10 @@
+version: '3'
+services:
+  acf:
+    build: acf/
+    ports:
+      - "443:443"
+    volumes:
+      - ssl:/etc/ssl/
+volumes:
+  ssl:

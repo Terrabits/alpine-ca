@@ -1,3 +1,0 @@
-#!/usr/bin/env ash
-
-exec /usr/sbin/mini_httpd -D -C /etc/mini_httpd/mini_httpd.conf

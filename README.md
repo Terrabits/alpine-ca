@@ -22,11 +22,11 @@ There is also an included docker compose file to make manually launching this tr
 
 The default server certificate for HTTPS is self-signed, so you will probably get a warning about the site being unsafe and be asked to accept this responsibility to visit the site anyway.
 
-Of course, once your CA is up and running you can use it to sign your site and set up your CA as a trusted source. ;-)
+The default server certificate can be replaced (see Persistent Data below).
 
 ## Initial Login
 
-First login uses the credentials `root:alpine`. This can be changed. Unfortunately the `/etc/acf/passwd` file is not mounted into a volume right now, so these changes stay in the container. Grouping and volumizing the appropriate files is a work in progress.
+First login uses the credentials `root:alpine`. Users and passwords are persistent data, and can be changed (see below).
 
 ## Managing ACF
 
@@ -42,32 +42,31 @@ Get started generating CA/certs with this reference.
 
 ## Persistent Data
 
-A volume (named `certs` in docker compose) is mounted to `/etc/ssl`. This is the directory that contains all the certificates and some of the server settings.
+A volume (named `-certs` in docker compose) is mounted to `/volume`. This is the directory that contains all the certificates and some of the server settings.
 
-| File                   | Location                             |
-| ---------------------- | ------------------------------------ |
-| Site certificate       | `/etc/ssl/mini_httpd/server.pem`     |
-| Site settings          | `/etc/ssl/mini_httpd/mini_httpd.cnf` |
-| CA certificate         | `/etc/ssl/cacert.pem`                |
-| CA key                 | `/etc/ssl/private/cakey.pem`         |
-| Generated certificates | `/etc/ssl/cert`                      |
-| Generated keys         | `/etc/ssl/certs`                     |
-| CA settings            | `/etc/ssl/openssl-ca-acf.cnf`        |
-| Certificate template   | `/etc/ssl/openssl.cnf`               |
-| x509v3 settings        | `/etc/ssl/x509v3.cnf`                |
+| File                   | Location                            |
+| ---------------------- | ----------------------------------- |
+| ACF users              | `/volume/passwd`                    |
+| Site certificate       | `/volume/mini_httpd/server.pem`     |
+| Site settings          | `/volume/mini_httpd/mini_httpd.cnf` |
+| CA certificate         | `/volume/cacert.pem`                |
+| CA key                 | `/volume/private/cakey.pem`         |
+| Generated certificates | `/volume/cert`                      |
+| Generated keys         | `/volume/certs`                     |
+| CA settings            | `/etc/ssl/openssl-ca-acf.cnf`       |
+| Certificate template   | `/etc/ssl/openssl.cnf`              |
+| x509v3 settings        | `/etc/ssl/x509v3.cnf`               |
 
 All certificates and keys except the CA key can be downloaded from the ACF site as an end-user. You should not need to dig through the `cert(s)/` directories.
 
-As mentioned above, the usernames and passwords for the ACF site itself, which are located at `/etc/acf/passwd`, are not captured in this volume. This is a work in progress.
+Unfortunately `acf`/`acf-openssl` fails to handle symbolic links correctly, so the `openssl` settings are not persisted.
 
-## Exporting Data
+## Exporting Data to Host
 
-All certificates, keys and OpenSSL ACF site settings can be exported by mounting to `/etc/ssl` and copying everything out. Since this container is built on Alpine 3.8, it is convenient to use this to do so.
-
-Assuming the container is running (name: `alpine-ca_acf_1`), the syntax would be as follows.
+Assuming the container is running (name: `alpine-ca_acf_1`), the syntax is as follows.
 
 ```shell
-sudo docker cp alpine-ca_acf_1:/etc/ssl ./export
+sudo docker cp alpine-ca_acf_1:/volume ./data
 sudo chown -R $(whoami):$(id -g) ./export
 sudo chmod -R u+rwx ./export
 ```

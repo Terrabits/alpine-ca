@@ -72,3 +72,7 @@ sudo chmod -R u+rwx ./export
 ```
 
 `sudo`, `chown` and `chmod` are necessary because of permissions issues with files created by docker on the local file system. The last two commands make you the owner with full permissions.
+
+## Bugs
+
+There is a related Alpine Linux bug, [#9505](https://bugs.alpinelinux.org/issues/9505), relating to the re-location of various files. There is a work-around in place in this project, albeit a sub-optimal one.
